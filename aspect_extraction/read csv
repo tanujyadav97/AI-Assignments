@@ -1,0 +1,37 @@
+from tempfile import NamedTemporaryFile
+import nltk
+import csv
+import pickle
+
+
+filename = 'data/restraunt_data.csv'
+
+dict={}
+
+with open(filename, 'rb') as csvFile:
+    reader = csv.reader(csvFile, delimiter=',', quotechar='"')
+
+    i=0
+    for row in reader:
+        base=0
+        if i!=0:
+            is_noun = lambda pos: pos[:2] == 'NN'
+            review=row[8]
+            review = unicode(review, errors='replace')
+            tokenized = nltk.word_tokenize(review)
+            nouns = [(word, tokenized.index(word)) for (word, pos) in nltk.pos_tag(tokenized) if is_noun(pos)]
+
+            is_adj = lambda pos: pos[:2] == 'JJ'
+            tokenized = nltk.word_tokenize(review)
+            adj = [tokenized.index(word) for (word, pos) in nltk.pos_tag(tokenized) if is_adj(pos)]
+
+            dict[i]={}
+            dict[i][0]=nouns
+            dict[i][1]=adj
+            print i
+        i+=1
+
+output=open('data.pkl','wb')
+pickle.dump(dict,output)
+output.close()
+
